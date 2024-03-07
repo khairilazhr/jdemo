@@ -10,9 +10,7 @@ const validations: any = {
     name: {
       required,
     },
-    age: {
-      required,
-    },
+    age: {},
     birthDate: {},
   },
 };

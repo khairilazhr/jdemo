@@ -44,6 +44,6 @@
     "incrementalChangelog": true,
     "otherModules": [],
     "entities": ["Author", "Book", "Review", "Order"],
-    "lastLiquibaseTimestamp": 1709779478000
+    "lastLiquibaseTimestamp": 1709782478000
   }
 }
