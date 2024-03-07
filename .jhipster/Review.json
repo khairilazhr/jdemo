@@ -1,0 +1,29 @@
+{
+  "name": "Review",
+  "fields": [
+    {
+      "fieldName": "title",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "content",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "rating",
+      "fieldType": "Integer"
+    }
+  ],
+  "relationships": [],
+  "entityTableName": "review",
+  "dto": "no",
+  "pagination": "no",
+  "service": "no",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": "*",
+  "changelogDate": "20240307021724",
+  "incrementalChangelog": true
+}

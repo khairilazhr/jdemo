@@ -30,6 +30,7 @@ import UserOAuth2Service from '@/entities/user/user.oauth2.service';
 import AuthorService from '@/entities/author/author.service';
 import BookService from '@/entities/book/book.service';
 import ReviewService from '@/entities/review/review.service';
+import OrderService from '@/entities/order/order.service';
 // jhipster-needle-add-entity-service-to-main-import - JHipster will import entities services here
 
 /* tslint:enable */
@@ -91,6 +92,7 @@ new Vue({
     authorService: () => new AuthorService(),
     bookService: () => new BookService(),
     reviewService: () => new ReviewService(),
+    orderService: () => new OrderService(),
     // jhipster-needle-add-entity-service-to-main - JHipster will import entities services here
     accountService: () => accountService,
   },

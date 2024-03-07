@@ -1,0 +1,26 @@
+{
+  "jdemoApp": {
+    "review": {
+      "home": {
+        "title": "Reviews",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Buat Review baru",
+        "createOrEditLabel": "Buat atau edit Review",
+        "notFound": "No Reviews found"
+      },
+      "created": "Review dengan id {{ param }} telah dibuat",
+      "updated": "Review dengan id {{ param }} telah diperbaharui",
+      "deleted": "Review dengan id {{ param }} telah dihapus",
+      "delete": {
+        "question": "Apakah anda yakin ingin menghapus Review {{ id }}?"
+      },
+      "detail": {
+        "title": "Review"
+      },
+      "id": "ID",
+      "title": "Title",
+      "content": "Content",
+      "rating": "Rating"
+    }
+  }
+}
