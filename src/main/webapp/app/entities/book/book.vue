@@ -23,12 +23,30 @@
       <table class="table table-striped" aria-describedby="books">
         <thead>
           <tr>
-            <th scope="row"><span v-text="$t('global.field.id')">ID</span></th>
-            <th scope="row"><span v-text="$t('jdemoApp.book.title')">Title</span></th>
-            <th scope="row"><span v-text="$t('jdemoApp.book.description')">Description</span></th>
-            <th scope="row"><span v-text="$t('jdemoApp.book.publicationDate')">Publication Date</span></th>
-            <th scope="row"><span v-text="$t('jdemoApp.book.price')">Price</span></th>
-            <th scope="row"><span v-text="$t('jdemoApp.book.cover')">Cover</span></th>
+            <th scope="row" v-on:click="changeOrder('id')">
+              <span v-text="$t('global.field.id')">ID</span>
+              <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'id'"></jhi-sort-indicator>
+            </th>
+            <th scope="row" v-on:click="changeOrder('title')">
+              <span v-text="$t('jdemoApp.book.title')">Title</span>
+              <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'title'"></jhi-sort-indicator>
+            </th>
+            <th scope="row" v-on:click="changeOrder('description')">
+              <span v-text="$t('jdemoApp.book.description')">Description</span>
+              <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'description'"></jhi-sort-indicator>
+            </th>
+            <th scope="row" v-on:click="changeOrder('publicationDate')">
+              <span v-text="$t('jdemoApp.book.publicationDate')">Publication Date</span>
+              <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'publicationDate'"></jhi-sort-indicator>
+            </th>
+            <th scope="row" v-on:click="changeOrder('price')">
+              <span v-text="$t('jdemoApp.book.price')">Price</span>
+              <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'price'"></jhi-sort-indicator>
+            </th>
+            <th scope="row" v-on:click="changeOrder('cover')">
+              <span v-text="$t('jdemoApp.book.cover')">Cover</span>
+              <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'cover'"></jhi-sort-indicator>
+            </th>
             <th scope="row"></th>
           </tr>
         </thead>
@@ -100,6 +118,14 @@
         </button>
       </div>
     </b-modal>
+    <div v-show="books && books.length > 0">
+      <div class="row justify-content-center">
+        <jhi-item-count :page="page" :total="queryCount" :itemsPerPage="itemsPerPage"></jhi-item-count>
+      </div>
+      <div class="row justify-content-center">
+        <b-pagination size="md" :total-rows="totalItems" v-model="page" :per-page="itemsPerPage" :change="loadPage(page)"></b-pagination>
+      </div>
+    </div>
   </div>
 </template>
 

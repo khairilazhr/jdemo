@@ -28,10 +28,22 @@
       <table class="table table-striped" aria-describedby="authors">
         <thead>
           <tr>
-            <th scope="row"><span v-text="$t('global.field.id')">ID</span></th>
-            <th scope="row"><span v-text="$t('jdemoApp.author.name')">Name</span></th>
-            <th scope="row"><span v-text="$t('jdemoApp.author.age')">Age</span></th>
-            <th scope="row"><span v-text="$t('jdemoApp.author.birthDate')">Birth Date</span></th>
+            <th scope="row" v-on:click="changeOrder('id')">
+              <span v-text="$t('global.field.id')">ID</span>
+              <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'id'"></jhi-sort-indicator>
+            </th>
+            <th scope="row" v-on:click="changeOrder('name')">
+              <span v-text="$t('jdemoApp.author.name')">Name</span>
+              <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'name'"></jhi-sort-indicator>
+            </th>
+            <th scope="row" v-on:click="changeOrder('age')">
+              <span v-text="$t('jdemoApp.author.age')">Age</span>
+              <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'age'"></jhi-sort-indicator>
+            </th>
+            <th scope="row" v-on:click="changeOrder('birthDate')">
+              <span v-text="$t('jdemoApp.author.birthDate')">Birth Date</span>
+              <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'birthDate'"></jhi-sort-indicator>
+            </th>
             <th scope="row"></th>
           </tr>
         </thead>
@@ -98,6 +110,14 @@
         </button>
       </div>
     </b-modal>
+    <div v-show="authors && authors.length > 0">
+      <div class="row justify-content-center">
+        <jhi-item-count :page="page" :total="queryCount" :itemsPerPage="itemsPerPage"></jhi-item-count>
+      </div>
+      <div class="row justify-content-center">
+        <b-pagination size="md" :total-rows="totalItems" v-model="page" :per-page="itemsPerPage" :change="loadPage(page)"></b-pagination>
+      </div>
+    </div>
   </div>
 </template>
 

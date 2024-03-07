@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.jdemo.IntegrationTest;
 import com.jdemo.domain.Author;
 import com.jdemo.repository.AuthorRepository;
+import com.jdemo.service.criteria.AuthorCriteria;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
@@ -39,6 +40,7 @@ class AuthorResourceIT {
 
     private static final LocalDate DEFAULT_BIRTH_DATE = LocalDate.ofEpochDay(0L);
     private static final LocalDate UPDATED_BIRTH_DATE = LocalDate.now(ZoneId.systemDefault());
+    private static final LocalDate SMALLER_BIRTH_DATE = LocalDate.ofEpochDay(-1L);
 
     private static final String ENTITY_API_URL = "/api/authors";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
@@ -169,6 +171,324 @@ class AuthorResourceIT {
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.age").value(DEFAULT_AGE))
             .andExpect(jsonPath("$.birthDate").value(DEFAULT_BIRTH_DATE.toString()));
+    }
+
+    @Test
+    @Transactional
+    void getAuthorsByIdFiltering() throws Exception {
+        // Initialize the database
+        authorRepository.saveAndFlush(author);
+
+        Long id = author.getId();
+
+        defaultAuthorShouldBeFound("id.equals=" + id);
+        defaultAuthorShouldNotBeFound("id.notEquals=" + id);
+
+        defaultAuthorShouldBeFound("id.greaterThanOrEqual=" + id);
+        defaultAuthorShouldNotBeFound("id.greaterThan=" + id);
+
+        defaultAuthorShouldBeFound("id.lessThanOrEqual=" + id);
+        defaultAuthorShouldNotBeFound("id.lessThan=" + id);
+    }
+
+    @Test
+    @Transactional
+    void getAllAuthorsByNameIsEqualToSomething() throws Exception {
+        // Initialize the database
+        authorRepository.saveAndFlush(author);
+
+        // Get all the authorList where name equals to DEFAULT_NAME
+        defaultAuthorShouldBeFound("name.equals=" + DEFAULT_NAME);
+
+        // Get all the authorList where name equals to UPDATED_NAME
+        defaultAuthorShouldNotBeFound("name.equals=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllAuthorsByNameIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        authorRepository.saveAndFlush(author);
+
+        // Get all the authorList where name not equals to DEFAULT_NAME
+        defaultAuthorShouldNotBeFound("name.notEquals=" + DEFAULT_NAME);
+
+        // Get all the authorList where name not equals to UPDATED_NAME
+        defaultAuthorShouldBeFound("name.notEquals=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllAuthorsByNameIsInShouldWork() throws Exception {
+        // Initialize the database
+        authorRepository.saveAndFlush(author);
+
+        // Get all the authorList where name in DEFAULT_NAME or UPDATED_NAME
+        defaultAuthorShouldBeFound("name.in=" + DEFAULT_NAME + "," + UPDATED_NAME);
+
+        // Get all the authorList where name equals to UPDATED_NAME
+        defaultAuthorShouldNotBeFound("name.in=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllAuthorsByNameIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        authorRepository.saveAndFlush(author);
+
+        // Get all the authorList where name is not null
+        defaultAuthorShouldBeFound("name.specified=true");
+
+        // Get all the authorList where name is null
+        defaultAuthorShouldNotBeFound("name.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllAuthorsByNameContainsSomething() throws Exception {
+        // Initialize the database
+        authorRepository.saveAndFlush(author);
+
+        // Get all the authorList where name contains DEFAULT_NAME
+        defaultAuthorShouldBeFound("name.contains=" + DEFAULT_NAME);
+
+        // Get all the authorList where name contains UPDATED_NAME
+        defaultAuthorShouldNotBeFound("name.contains=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllAuthorsByNameNotContainsSomething() throws Exception {
+        // Initialize the database
+        authorRepository.saveAndFlush(author);
+
+        // Get all the authorList where name does not contain DEFAULT_NAME
+        defaultAuthorShouldNotBeFound("name.doesNotContain=" + DEFAULT_NAME);
+
+        // Get all the authorList where name does not contain UPDATED_NAME
+        defaultAuthorShouldBeFound("name.doesNotContain=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllAuthorsByAgeIsEqualToSomething() throws Exception {
+        // Initialize the database
+        authorRepository.saveAndFlush(author);
+
+        // Get all the authorList where age equals to DEFAULT_AGE
+        defaultAuthorShouldBeFound("age.equals=" + DEFAULT_AGE);
+
+        // Get all the authorList where age equals to UPDATED_AGE
+        defaultAuthorShouldNotBeFound("age.equals=" + UPDATED_AGE);
+    }
+
+    @Test
+    @Transactional
+    void getAllAuthorsByAgeIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        authorRepository.saveAndFlush(author);
+
+        // Get all the authorList where age not equals to DEFAULT_AGE
+        defaultAuthorShouldNotBeFound("age.notEquals=" + DEFAULT_AGE);
+
+        // Get all the authorList where age not equals to UPDATED_AGE
+        defaultAuthorShouldBeFound("age.notEquals=" + UPDATED_AGE);
+    }
+
+    @Test
+    @Transactional
+    void getAllAuthorsByAgeIsInShouldWork() throws Exception {
+        // Initialize the database
+        authorRepository.saveAndFlush(author);
+
+        // Get all the authorList where age in DEFAULT_AGE or UPDATED_AGE
+        defaultAuthorShouldBeFound("age.in=" + DEFAULT_AGE + "," + UPDATED_AGE);
+
+        // Get all the authorList where age equals to UPDATED_AGE
+        defaultAuthorShouldNotBeFound("age.in=" + UPDATED_AGE);
+    }
+
+    @Test
+    @Transactional
+    void getAllAuthorsByAgeIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        authorRepository.saveAndFlush(author);
+
+        // Get all the authorList where age is not null
+        defaultAuthorShouldBeFound("age.specified=true");
+
+        // Get all the authorList where age is null
+        defaultAuthorShouldNotBeFound("age.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllAuthorsByAgeContainsSomething() throws Exception {
+        // Initialize the database
+        authorRepository.saveAndFlush(author);
+
+        // Get all the authorList where age contains DEFAULT_AGE
+        defaultAuthorShouldBeFound("age.contains=" + DEFAULT_AGE);
+
+        // Get all the authorList where age contains UPDATED_AGE
+        defaultAuthorShouldNotBeFound("age.contains=" + UPDATED_AGE);
+    }
+
+    @Test
+    @Transactional
+    void getAllAuthorsByAgeNotContainsSomething() throws Exception {
+        // Initialize the database
+        authorRepository.saveAndFlush(author);
+
+        // Get all the authorList where age does not contain DEFAULT_AGE
+        defaultAuthorShouldNotBeFound("age.doesNotContain=" + DEFAULT_AGE);
+
+        // Get all the authorList where age does not contain UPDATED_AGE
+        defaultAuthorShouldBeFound("age.doesNotContain=" + UPDATED_AGE);
+    }
+
+    @Test
+    @Transactional
+    void getAllAuthorsByBirthDateIsEqualToSomething() throws Exception {
+        // Initialize the database
+        authorRepository.saveAndFlush(author);
+
+        // Get all the authorList where birthDate equals to DEFAULT_BIRTH_DATE
+        defaultAuthorShouldBeFound("birthDate.equals=" + DEFAULT_BIRTH_DATE);
+
+        // Get all the authorList where birthDate equals to UPDATED_BIRTH_DATE
+        defaultAuthorShouldNotBeFound("birthDate.equals=" + UPDATED_BIRTH_DATE);
+    }
+
+    @Test
+    @Transactional
+    void getAllAuthorsByBirthDateIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        authorRepository.saveAndFlush(author);
+
+        // Get all the authorList where birthDate not equals to DEFAULT_BIRTH_DATE
+        defaultAuthorShouldNotBeFound("birthDate.notEquals=" + DEFAULT_BIRTH_DATE);
+
+        // Get all the authorList where birthDate not equals to UPDATED_BIRTH_DATE
+        defaultAuthorShouldBeFound("birthDate.notEquals=" + UPDATED_BIRTH_DATE);
+    }
+
+    @Test
+    @Transactional
+    void getAllAuthorsByBirthDateIsInShouldWork() throws Exception {
+        // Initialize the database
+        authorRepository.saveAndFlush(author);
+
+        // Get all the authorList where birthDate in DEFAULT_BIRTH_DATE or UPDATED_BIRTH_DATE
+        defaultAuthorShouldBeFound("birthDate.in=" + DEFAULT_BIRTH_DATE + "," + UPDATED_BIRTH_DATE);
+
+        // Get all the authorList where birthDate equals to UPDATED_BIRTH_DATE
+        defaultAuthorShouldNotBeFound("birthDate.in=" + UPDATED_BIRTH_DATE);
+    }
+
+    @Test
+    @Transactional
+    void getAllAuthorsByBirthDateIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        authorRepository.saveAndFlush(author);
+
+        // Get all the authorList where birthDate is not null
+        defaultAuthorShouldBeFound("birthDate.specified=true");
+
+        // Get all the authorList where birthDate is null
+        defaultAuthorShouldNotBeFound("birthDate.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllAuthorsByBirthDateIsGreaterThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        authorRepository.saveAndFlush(author);
+
+        // Get all the authorList where birthDate is greater than or equal to DEFAULT_BIRTH_DATE
+        defaultAuthorShouldBeFound("birthDate.greaterThanOrEqual=" + DEFAULT_BIRTH_DATE);
+
+        // Get all the authorList where birthDate is greater than or equal to UPDATED_BIRTH_DATE
+        defaultAuthorShouldNotBeFound("birthDate.greaterThanOrEqual=" + UPDATED_BIRTH_DATE);
+    }
+
+    @Test
+    @Transactional
+    void getAllAuthorsByBirthDateIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        authorRepository.saveAndFlush(author);
+
+        // Get all the authorList where birthDate is less than or equal to DEFAULT_BIRTH_DATE
+        defaultAuthorShouldBeFound("birthDate.lessThanOrEqual=" + DEFAULT_BIRTH_DATE);
+
+        // Get all the authorList where birthDate is less than or equal to SMALLER_BIRTH_DATE
+        defaultAuthorShouldNotBeFound("birthDate.lessThanOrEqual=" + SMALLER_BIRTH_DATE);
+    }
+
+    @Test
+    @Transactional
+    void getAllAuthorsByBirthDateIsLessThanSomething() throws Exception {
+        // Initialize the database
+        authorRepository.saveAndFlush(author);
+
+        // Get all the authorList where birthDate is less than DEFAULT_BIRTH_DATE
+        defaultAuthorShouldNotBeFound("birthDate.lessThan=" + DEFAULT_BIRTH_DATE);
+
+        // Get all the authorList where birthDate is less than UPDATED_BIRTH_DATE
+        defaultAuthorShouldBeFound("birthDate.lessThan=" + UPDATED_BIRTH_DATE);
+    }
+
+    @Test
+    @Transactional
+    void getAllAuthorsByBirthDateIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        authorRepository.saveAndFlush(author);
+
+        // Get all the authorList where birthDate is greater than DEFAULT_BIRTH_DATE
+        defaultAuthorShouldNotBeFound("birthDate.greaterThan=" + DEFAULT_BIRTH_DATE);
+
+        // Get all the authorList where birthDate is greater than SMALLER_BIRTH_DATE
+        defaultAuthorShouldBeFound("birthDate.greaterThan=" + SMALLER_BIRTH_DATE);
+    }
+
+    /**
+     * Executes the search, and checks that the default entity is returned.
+     */
+    private void defaultAuthorShouldBeFound(String filter) throws Exception {
+        restAuthorMockMvc
+            .perform(get(ENTITY_API_URL + "?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(author.getId().intValue())))
+            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
+            .andExpect(jsonPath("$.[*].age").value(hasItem(DEFAULT_AGE)))
+            .andExpect(jsonPath("$.[*].birthDate").value(hasItem(DEFAULT_BIRTH_DATE.toString())));
+
+        // Check, that the count call also returns 1
+        restAuthorMockMvc
+            .perform(get(ENTITY_API_URL + "/count?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(content().string("1"));
+    }
+
+    /**
+     * Executes the search, and checks that the default entity is not returned.
+     */
+    private void defaultAuthorShouldNotBeFound(String filter) throws Exception {
+        restAuthorMockMvc
+            .perform(get(ENTITY_API_URL + "?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$").isEmpty());
+
+        // Check, that the count call also returns 0
+        restAuthorMockMvc
+            .perform(get(ENTITY_API_URL + "/count?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(content().string("0"));
     }
 
     @Test

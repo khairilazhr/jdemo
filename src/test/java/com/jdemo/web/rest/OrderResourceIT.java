@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.jdemo.IntegrationTest;
 import com.jdemo.domain.Order;
 import com.jdemo.repository.OrderRepository;
+import com.jdemo.service.criteria.OrderCriteria;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
@@ -34,6 +35,7 @@ class OrderResourceIT {
 
     private static final Float DEFAULT_TOTALPRICE = 1F;
     private static final Float UPDATED_TOTALPRICE = 2F;
+    private static final Float SMALLER_TOTALPRICE = 1F - 1F;
 
     private static final String ENTITY_API_URL = "/api/orders";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
@@ -144,6 +146,245 @@ class OrderResourceIT {
             .andExpect(jsonPath("$.id").value(order.getId().intValue()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.totalprice").value(DEFAULT_TOTALPRICE.doubleValue()));
+    }
+
+    @Test
+    @Transactional
+    void getOrdersByIdFiltering() throws Exception {
+        // Initialize the database
+        orderRepository.saveAndFlush(order);
+
+        Long id = order.getId();
+
+        defaultOrderShouldBeFound("id.equals=" + id);
+        defaultOrderShouldNotBeFound("id.notEquals=" + id);
+
+        defaultOrderShouldBeFound("id.greaterThanOrEqual=" + id);
+        defaultOrderShouldNotBeFound("id.greaterThan=" + id);
+
+        defaultOrderShouldBeFound("id.lessThanOrEqual=" + id);
+        defaultOrderShouldNotBeFound("id.lessThan=" + id);
+    }
+
+    @Test
+    @Transactional
+    void getAllOrdersByNameIsEqualToSomething() throws Exception {
+        // Initialize the database
+        orderRepository.saveAndFlush(order);
+
+        // Get all the orderList where name equals to DEFAULT_NAME
+        defaultOrderShouldBeFound("name.equals=" + DEFAULT_NAME);
+
+        // Get all the orderList where name equals to UPDATED_NAME
+        defaultOrderShouldNotBeFound("name.equals=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllOrdersByNameIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        orderRepository.saveAndFlush(order);
+
+        // Get all the orderList where name not equals to DEFAULT_NAME
+        defaultOrderShouldNotBeFound("name.notEquals=" + DEFAULT_NAME);
+
+        // Get all the orderList where name not equals to UPDATED_NAME
+        defaultOrderShouldBeFound("name.notEquals=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllOrdersByNameIsInShouldWork() throws Exception {
+        // Initialize the database
+        orderRepository.saveAndFlush(order);
+
+        // Get all the orderList where name in DEFAULT_NAME or UPDATED_NAME
+        defaultOrderShouldBeFound("name.in=" + DEFAULT_NAME + "," + UPDATED_NAME);
+
+        // Get all the orderList where name equals to UPDATED_NAME
+        defaultOrderShouldNotBeFound("name.in=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllOrdersByNameIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        orderRepository.saveAndFlush(order);
+
+        // Get all the orderList where name is not null
+        defaultOrderShouldBeFound("name.specified=true");
+
+        // Get all the orderList where name is null
+        defaultOrderShouldNotBeFound("name.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllOrdersByNameContainsSomething() throws Exception {
+        // Initialize the database
+        orderRepository.saveAndFlush(order);
+
+        // Get all the orderList where name contains DEFAULT_NAME
+        defaultOrderShouldBeFound("name.contains=" + DEFAULT_NAME);
+
+        // Get all the orderList where name contains UPDATED_NAME
+        defaultOrderShouldNotBeFound("name.contains=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllOrdersByNameNotContainsSomething() throws Exception {
+        // Initialize the database
+        orderRepository.saveAndFlush(order);
+
+        // Get all the orderList where name does not contain DEFAULT_NAME
+        defaultOrderShouldNotBeFound("name.doesNotContain=" + DEFAULT_NAME);
+
+        // Get all the orderList where name does not contain UPDATED_NAME
+        defaultOrderShouldBeFound("name.doesNotContain=" + UPDATED_NAME);
+    }
+
+    @Test
+    @Transactional
+    void getAllOrdersByTotalpriceIsEqualToSomething() throws Exception {
+        // Initialize the database
+        orderRepository.saveAndFlush(order);
+
+        // Get all the orderList where totalprice equals to DEFAULT_TOTALPRICE
+        defaultOrderShouldBeFound("totalprice.equals=" + DEFAULT_TOTALPRICE);
+
+        // Get all the orderList where totalprice equals to UPDATED_TOTALPRICE
+        defaultOrderShouldNotBeFound("totalprice.equals=" + UPDATED_TOTALPRICE);
+    }
+
+    @Test
+    @Transactional
+    void getAllOrdersByTotalpriceIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        orderRepository.saveAndFlush(order);
+
+        // Get all the orderList where totalprice not equals to DEFAULT_TOTALPRICE
+        defaultOrderShouldNotBeFound("totalprice.notEquals=" + DEFAULT_TOTALPRICE);
+
+        // Get all the orderList where totalprice not equals to UPDATED_TOTALPRICE
+        defaultOrderShouldBeFound("totalprice.notEquals=" + UPDATED_TOTALPRICE);
+    }
+
+    @Test
+    @Transactional
+    void getAllOrdersByTotalpriceIsInShouldWork() throws Exception {
+        // Initialize the database
+        orderRepository.saveAndFlush(order);
+
+        // Get all the orderList where totalprice in DEFAULT_TOTALPRICE or UPDATED_TOTALPRICE
+        defaultOrderShouldBeFound("totalprice.in=" + DEFAULT_TOTALPRICE + "," + UPDATED_TOTALPRICE);
+
+        // Get all the orderList where totalprice equals to UPDATED_TOTALPRICE
+        defaultOrderShouldNotBeFound("totalprice.in=" + UPDATED_TOTALPRICE);
+    }
+
+    @Test
+    @Transactional
+    void getAllOrdersByTotalpriceIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        orderRepository.saveAndFlush(order);
+
+        // Get all the orderList where totalprice is not null
+        defaultOrderShouldBeFound("totalprice.specified=true");
+
+        // Get all the orderList where totalprice is null
+        defaultOrderShouldNotBeFound("totalprice.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllOrdersByTotalpriceIsGreaterThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        orderRepository.saveAndFlush(order);
+
+        // Get all the orderList where totalprice is greater than or equal to DEFAULT_TOTALPRICE
+        defaultOrderShouldBeFound("totalprice.greaterThanOrEqual=" + DEFAULT_TOTALPRICE);
+
+        // Get all the orderList where totalprice is greater than or equal to UPDATED_TOTALPRICE
+        defaultOrderShouldNotBeFound("totalprice.greaterThanOrEqual=" + UPDATED_TOTALPRICE);
+    }
+
+    @Test
+    @Transactional
+    void getAllOrdersByTotalpriceIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        orderRepository.saveAndFlush(order);
+
+        // Get all the orderList where totalprice is less than or equal to DEFAULT_TOTALPRICE
+        defaultOrderShouldBeFound("totalprice.lessThanOrEqual=" + DEFAULT_TOTALPRICE);
+
+        // Get all the orderList where totalprice is less than or equal to SMALLER_TOTALPRICE
+        defaultOrderShouldNotBeFound("totalprice.lessThanOrEqual=" + SMALLER_TOTALPRICE);
+    }
+
+    @Test
+    @Transactional
+    void getAllOrdersByTotalpriceIsLessThanSomething() throws Exception {
+        // Initialize the database
+        orderRepository.saveAndFlush(order);
+
+        // Get all the orderList where totalprice is less than DEFAULT_TOTALPRICE
+        defaultOrderShouldNotBeFound("totalprice.lessThan=" + DEFAULT_TOTALPRICE);
+
+        // Get all the orderList where totalprice is less than UPDATED_TOTALPRICE
+        defaultOrderShouldBeFound("totalprice.lessThan=" + UPDATED_TOTALPRICE);
+    }
+
+    @Test
+    @Transactional
+    void getAllOrdersByTotalpriceIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        orderRepository.saveAndFlush(order);
+
+        // Get all the orderList where totalprice is greater than DEFAULT_TOTALPRICE
+        defaultOrderShouldNotBeFound("totalprice.greaterThan=" + DEFAULT_TOTALPRICE);
+
+        // Get all the orderList where totalprice is greater than SMALLER_TOTALPRICE
+        defaultOrderShouldBeFound("totalprice.greaterThan=" + SMALLER_TOTALPRICE);
+    }
+
+    /**
+     * Executes the search, and checks that the default entity is returned.
+     */
+    private void defaultOrderShouldBeFound(String filter) throws Exception {
+        restOrderMockMvc
+            .perform(get(ENTITY_API_URL + "?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(order.getId().intValue())))
+            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
+            .andExpect(jsonPath("$.[*].totalprice").value(hasItem(DEFAULT_TOTALPRICE.doubleValue())));
+
+        // Check, that the count call also returns 1
+        restOrderMockMvc
+            .perform(get(ENTITY_API_URL + "/count?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(content().string("1"));
+    }
+
+    /**
+     * Executes the search, and checks that the default entity is not returned.
+     */
+    private void defaultOrderShouldNotBeFound(String filter) throws Exception {
+        restOrderMockMvc
+            .perform(get(ENTITY_API_URL + "?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$").isEmpty());
+
+        // Check, that the count call also returns 0
+        restOrderMockMvc
+            .perform(get(ENTITY_API_URL + "/count?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(content().string("0"));
     }
 
     @Test
