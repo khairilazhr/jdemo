@@ -43,7 +43,7 @@
     "languages": ["en", "in"],
     "incrementalChangelog": true,
     "otherModules": [],
-    "entities": ["Author", "Book"],
-    "lastLiquibaseTimestamp": 1709777118000
+    "entities": ["Author", "Book", "Review"],
+    "lastLiquibaseTimestamp": 1709777844000
   }
 }

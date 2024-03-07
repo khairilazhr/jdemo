@@ -9,6 +9,7 @@
         "main": "Entitas",
         "author": "Author",
         "book": "Book",
+        "review": "Review",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
       },
       "account": {

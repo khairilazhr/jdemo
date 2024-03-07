@@ -14,6 +14,12 @@ const Book = () => import('@/entities/book/book.vue');
 const BookUpdate = () => import('@/entities/book/book-update.vue');
 // prettier-ignore
 const BookDetails = () => import('@/entities/book/book-details.vue');
+// prettier-ignore
+const Review = () => import('@/entities/review/review.vue');
+// prettier-ignore
+const ReviewUpdate = () => import('@/entities/review/review-update.vue');
+// prettier-ignore
+const ReviewDetails = () => import('@/entities/review/review-details.vue');
 // jhipster-needle-add-entity-to-router-import - JHipster will import entities to the router here
 
 export default [
@@ -63,6 +69,30 @@ export default [
     path: '/book/:bookId/view',
     name: 'BookView',
     component: BookDetails,
+    meta: { authorities: [Authority.USER] },
+  },
+  {
+    path: '/review',
+    name: 'Review',
+    component: Review,
+    meta: { authorities: [Authority.USER] },
+  },
+  {
+    path: '/review/new',
+    name: 'ReviewCreate',
+    component: ReviewUpdate,
+    meta: { authorities: [Authority.USER] },
+  },
+  {
+    path: '/review/:reviewId/edit',
+    name: 'ReviewEdit',
+    component: ReviewUpdate,
+    meta: { authorities: [Authority.USER] },
+  },
+  {
+    path: '/review/:reviewId/view',
+    name: 'ReviewView',
+    component: ReviewDetails,
     meta: { authorities: [Authority.USER] },
   },
   // jhipster-needle-add-entity-to-router - JHipster will add entities to the router here

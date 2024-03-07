@@ -42,7 +42,13 @@
               data-cy="age"
               :class="{ valid: !$v.author.age.$invalid, invalid: $v.author.age.$invalid }"
               v-model="$v.author.age.$model"
+              required
             />
+            <div v-if="$v.author.age.$anyDirty && $v.author.age.$invalid">
+              <small class="form-text text-danger" v-if="!$v.author.age.required" v-text="$t('entity.validation.required')">
+                This field is required.
+              </small>
+            </div>
           </div>
           <div class="form-group">
             <label class="form-control-label" v-text="$t('jdemoApp.author.birthDate')" for="author-birthDate">Birth Date</label>
