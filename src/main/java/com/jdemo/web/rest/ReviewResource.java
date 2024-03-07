@@ -2,6 +2,9 @@ package com.jdemo.web.rest;
 
 import com.jdemo.domain.Review;
 import com.jdemo.repository.ReviewRepository;
+import com.jdemo.service.ReviewQueryService;
+import com.jdemo.service.ReviewService;
+import com.jdemo.service.criteria.ReviewCriteria;
 import com.jdemo.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -11,10 +14,15 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
+import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
 
 /**
@@ -22,7 +30,6 @@ import tech.jhipster.web.util.ResponseUtil;
  */
 @RestController
 @RequestMapping("/api")
-@Transactional
 public class ReviewResource {
 
     private final Logger log = LoggerFactory.getLogger(ReviewResource.class);
@@ -32,10 +39,16 @@ public class ReviewResource {
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
+    private final ReviewService reviewService;
+
     private final ReviewRepository reviewRepository;
 
-    public ReviewResource(ReviewRepository reviewRepository) {
+    private final ReviewQueryService reviewQueryService;
+
+    public ReviewResource(ReviewService reviewService, ReviewRepository reviewRepository, ReviewQueryService reviewQueryService) {
+        this.reviewService = reviewService;
         this.reviewRepository = reviewRepository;
+        this.reviewQueryService = reviewQueryService;
     }
 
     /**
@@ -51,7 +64,7 @@ public class ReviewResource {
         if (review.getId() != null) {
             throw new BadRequestAlertException("A new review cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        Review result = reviewRepository.save(review);
+        Review result = reviewService.save(review);
         return ResponseEntity
             .created(new URI("/api/reviews/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
@@ -83,7 +96,7 @@ public class ReviewResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        Review result = reviewRepository.save(review);
+        Review result = reviewService.save(review);
         return ResponseEntity
             .ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, review.getId().toString()))
@@ -118,24 +131,7 @@ public class ReviewResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        Optional<Review> result = reviewRepository
-            .findById(review.getId())
-            .map(
-                existingReview -> {
-                    if (review.getTitle() != null) {
-                        existingReview.setTitle(review.getTitle());
-                    }
-                    if (review.getContent() != null) {
-                        existingReview.setContent(review.getContent());
-                    }
-                    if (review.getRating() != null) {
-                        existingReview.setRating(review.getRating());
-                    }
-
-                    return existingReview;
-                }
-            )
-            .map(reviewRepository::save);
+        Optional<Review> result = reviewService.partialUpdate(review);
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -146,12 +142,28 @@ public class ReviewResource {
     /**
      * {@code GET  /reviews} : get all the reviews.
      *
+     * @param pageable the pagination information.
+     * @param criteria the criteria which the requested entities should match.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of reviews in body.
      */
     @GetMapping("/reviews")
-    public List<Review> getAllReviews() {
-        log.debug("REST request to get all Reviews");
-        return reviewRepository.findAll();
+    public ResponseEntity<List<Review>> getAllReviews(ReviewCriteria criteria, Pageable pageable) {
+        log.debug("REST request to get Reviews by criteria: {}", criteria);
+        Page<Review> page = reviewQueryService.findByCriteria(criteria, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    /**
+     * {@code GET  /reviews/count} : count all the reviews.
+     *
+     * @param criteria the criteria which the requested entities should match.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count in body.
+     */
+    @GetMapping("/reviews/count")
+    public ResponseEntity<Long> countReviews(ReviewCriteria criteria) {
+        log.debug("REST request to count Reviews by criteria: {}", criteria);
+        return ResponseEntity.ok().body(reviewQueryService.countByCriteria(criteria));
     }
 
     /**
@@ -163,7 +175,7 @@ public class ReviewResource {
     @GetMapping("/reviews/{id}")
     public ResponseEntity<Review> getReview(@PathVariable Long id) {
         log.debug("REST request to get Review : {}", id);
-        Optional<Review> review = reviewRepository.findById(id);
+        Optional<Review> review = reviewService.findOne(id);
         return ResponseUtil.wrapOrNotFound(review);
     }
 
@@ -176,7 +188,7 @@ public class ReviewResource {
     @DeleteMapping("/reviews/{id}")
     public ResponseEntity<Void> deleteReview(@PathVariable Long id) {
         log.debug("REST request to delete Review : {}", id);
-        reviewRepository.deleteById(id);
+        reviewService.delete(id);
         return ResponseEntity
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))

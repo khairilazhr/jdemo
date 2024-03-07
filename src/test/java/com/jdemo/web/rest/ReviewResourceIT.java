@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.jdemo.IntegrationTest;
 import com.jdemo.domain.Review;
 import com.jdemo.repository.ReviewRepository;
+import com.jdemo.service.criteria.ReviewCriteria;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
@@ -37,6 +38,7 @@ class ReviewResourceIT {
 
     private static final Integer DEFAULT_RATING = 1;
     private static final Integer UPDATED_RATING = 2;
+    private static final Integer SMALLER_RATING = 1 - 1;
 
     private static final String ENTITY_API_URL = "/api/reviews";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
@@ -150,6 +152,324 @@ class ReviewResourceIT {
             .andExpect(jsonPath("$.title").value(DEFAULT_TITLE))
             .andExpect(jsonPath("$.content").value(DEFAULT_CONTENT))
             .andExpect(jsonPath("$.rating").value(DEFAULT_RATING));
+    }
+
+    @Test
+    @Transactional
+    void getReviewsByIdFiltering() throws Exception {
+        // Initialize the database
+        reviewRepository.saveAndFlush(review);
+
+        Long id = review.getId();
+
+        defaultReviewShouldBeFound("id.equals=" + id);
+        defaultReviewShouldNotBeFound("id.notEquals=" + id);
+
+        defaultReviewShouldBeFound("id.greaterThanOrEqual=" + id);
+        defaultReviewShouldNotBeFound("id.greaterThan=" + id);
+
+        defaultReviewShouldBeFound("id.lessThanOrEqual=" + id);
+        defaultReviewShouldNotBeFound("id.lessThan=" + id);
+    }
+
+    @Test
+    @Transactional
+    void getAllReviewsByTitleIsEqualToSomething() throws Exception {
+        // Initialize the database
+        reviewRepository.saveAndFlush(review);
+
+        // Get all the reviewList where title equals to DEFAULT_TITLE
+        defaultReviewShouldBeFound("title.equals=" + DEFAULT_TITLE);
+
+        // Get all the reviewList where title equals to UPDATED_TITLE
+        defaultReviewShouldNotBeFound("title.equals=" + UPDATED_TITLE);
+    }
+
+    @Test
+    @Transactional
+    void getAllReviewsByTitleIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        reviewRepository.saveAndFlush(review);
+
+        // Get all the reviewList where title not equals to DEFAULT_TITLE
+        defaultReviewShouldNotBeFound("title.notEquals=" + DEFAULT_TITLE);
+
+        // Get all the reviewList where title not equals to UPDATED_TITLE
+        defaultReviewShouldBeFound("title.notEquals=" + UPDATED_TITLE);
+    }
+
+    @Test
+    @Transactional
+    void getAllReviewsByTitleIsInShouldWork() throws Exception {
+        // Initialize the database
+        reviewRepository.saveAndFlush(review);
+
+        // Get all the reviewList where title in DEFAULT_TITLE or UPDATED_TITLE
+        defaultReviewShouldBeFound("title.in=" + DEFAULT_TITLE + "," + UPDATED_TITLE);
+
+        // Get all the reviewList where title equals to UPDATED_TITLE
+        defaultReviewShouldNotBeFound("title.in=" + UPDATED_TITLE);
+    }
+
+    @Test
+    @Transactional
+    void getAllReviewsByTitleIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        reviewRepository.saveAndFlush(review);
+
+        // Get all the reviewList where title is not null
+        defaultReviewShouldBeFound("title.specified=true");
+
+        // Get all the reviewList where title is null
+        defaultReviewShouldNotBeFound("title.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllReviewsByTitleContainsSomething() throws Exception {
+        // Initialize the database
+        reviewRepository.saveAndFlush(review);
+
+        // Get all the reviewList where title contains DEFAULT_TITLE
+        defaultReviewShouldBeFound("title.contains=" + DEFAULT_TITLE);
+
+        // Get all the reviewList where title contains UPDATED_TITLE
+        defaultReviewShouldNotBeFound("title.contains=" + UPDATED_TITLE);
+    }
+
+    @Test
+    @Transactional
+    void getAllReviewsByTitleNotContainsSomething() throws Exception {
+        // Initialize the database
+        reviewRepository.saveAndFlush(review);
+
+        // Get all the reviewList where title does not contain DEFAULT_TITLE
+        defaultReviewShouldNotBeFound("title.doesNotContain=" + DEFAULT_TITLE);
+
+        // Get all the reviewList where title does not contain UPDATED_TITLE
+        defaultReviewShouldBeFound("title.doesNotContain=" + UPDATED_TITLE);
+    }
+
+    @Test
+    @Transactional
+    void getAllReviewsByContentIsEqualToSomething() throws Exception {
+        // Initialize the database
+        reviewRepository.saveAndFlush(review);
+
+        // Get all the reviewList where content equals to DEFAULT_CONTENT
+        defaultReviewShouldBeFound("content.equals=" + DEFAULT_CONTENT);
+
+        // Get all the reviewList where content equals to UPDATED_CONTENT
+        defaultReviewShouldNotBeFound("content.equals=" + UPDATED_CONTENT);
+    }
+
+    @Test
+    @Transactional
+    void getAllReviewsByContentIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        reviewRepository.saveAndFlush(review);
+
+        // Get all the reviewList where content not equals to DEFAULT_CONTENT
+        defaultReviewShouldNotBeFound("content.notEquals=" + DEFAULT_CONTENT);
+
+        // Get all the reviewList where content not equals to UPDATED_CONTENT
+        defaultReviewShouldBeFound("content.notEquals=" + UPDATED_CONTENT);
+    }
+
+    @Test
+    @Transactional
+    void getAllReviewsByContentIsInShouldWork() throws Exception {
+        // Initialize the database
+        reviewRepository.saveAndFlush(review);
+
+        // Get all the reviewList where content in DEFAULT_CONTENT or UPDATED_CONTENT
+        defaultReviewShouldBeFound("content.in=" + DEFAULT_CONTENT + "," + UPDATED_CONTENT);
+
+        // Get all the reviewList where content equals to UPDATED_CONTENT
+        defaultReviewShouldNotBeFound("content.in=" + UPDATED_CONTENT);
+    }
+
+    @Test
+    @Transactional
+    void getAllReviewsByContentIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        reviewRepository.saveAndFlush(review);
+
+        // Get all the reviewList where content is not null
+        defaultReviewShouldBeFound("content.specified=true");
+
+        // Get all the reviewList where content is null
+        defaultReviewShouldNotBeFound("content.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllReviewsByContentContainsSomething() throws Exception {
+        // Initialize the database
+        reviewRepository.saveAndFlush(review);
+
+        // Get all the reviewList where content contains DEFAULT_CONTENT
+        defaultReviewShouldBeFound("content.contains=" + DEFAULT_CONTENT);
+
+        // Get all the reviewList where content contains UPDATED_CONTENT
+        defaultReviewShouldNotBeFound("content.contains=" + UPDATED_CONTENT);
+    }
+
+    @Test
+    @Transactional
+    void getAllReviewsByContentNotContainsSomething() throws Exception {
+        // Initialize the database
+        reviewRepository.saveAndFlush(review);
+
+        // Get all the reviewList where content does not contain DEFAULT_CONTENT
+        defaultReviewShouldNotBeFound("content.doesNotContain=" + DEFAULT_CONTENT);
+
+        // Get all the reviewList where content does not contain UPDATED_CONTENT
+        defaultReviewShouldBeFound("content.doesNotContain=" + UPDATED_CONTENT);
+    }
+
+    @Test
+    @Transactional
+    void getAllReviewsByRatingIsEqualToSomething() throws Exception {
+        // Initialize the database
+        reviewRepository.saveAndFlush(review);
+
+        // Get all the reviewList where rating equals to DEFAULT_RATING
+        defaultReviewShouldBeFound("rating.equals=" + DEFAULT_RATING);
+
+        // Get all the reviewList where rating equals to UPDATED_RATING
+        defaultReviewShouldNotBeFound("rating.equals=" + UPDATED_RATING);
+    }
+
+    @Test
+    @Transactional
+    void getAllReviewsByRatingIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        reviewRepository.saveAndFlush(review);
+
+        // Get all the reviewList where rating not equals to DEFAULT_RATING
+        defaultReviewShouldNotBeFound("rating.notEquals=" + DEFAULT_RATING);
+
+        // Get all the reviewList where rating not equals to UPDATED_RATING
+        defaultReviewShouldBeFound("rating.notEquals=" + UPDATED_RATING);
+    }
+
+    @Test
+    @Transactional
+    void getAllReviewsByRatingIsInShouldWork() throws Exception {
+        // Initialize the database
+        reviewRepository.saveAndFlush(review);
+
+        // Get all the reviewList where rating in DEFAULT_RATING or UPDATED_RATING
+        defaultReviewShouldBeFound("rating.in=" + DEFAULT_RATING + "," + UPDATED_RATING);
+
+        // Get all the reviewList where rating equals to UPDATED_RATING
+        defaultReviewShouldNotBeFound("rating.in=" + UPDATED_RATING);
+    }
+
+    @Test
+    @Transactional
+    void getAllReviewsByRatingIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        reviewRepository.saveAndFlush(review);
+
+        // Get all the reviewList where rating is not null
+        defaultReviewShouldBeFound("rating.specified=true");
+
+        // Get all the reviewList where rating is null
+        defaultReviewShouldNotBeFound("rating.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllReviewsByRatingIsGreaterThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        reviewRepository.saveAndFlush(review);
+
+        // Get all the reviewList where rating is greater than or equal to DEFAULT_RATING
+        defaultReviewShouldBeFound("rating.greaterThanOrEqual=" + DEFAULT_RATING);
+
+        // Get all the reviewList where rating is greater than or equal to UPDATED_RATING
+        defaultReviewShouldNotBeFound("rating.greaterThanOrEqual=" + UPDATED_RATING);
+    }
+
+    @Test
+    @Transactional
+    void getAllReviewsByRatingIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        reviewRepository.saveAndFlush(review);
+
+        // Get all the reviewList where rating is less than or equal to DEFAULT_RATING
+        defaultReviewShouldBeFound("rating.lessThanOrEqual=" + DEFAULT_RATING);
+
+        // Get all the reviewList where rating is less than or equal to SMALLER_RATING
+        defaultReviewShouldNotBeFound("rating.lessThanOrEqual=" + SMALLER_RATING);
+    }
+
+    @Test
+    @Transactional
+    void getAllReviewsByRatingIsLessThanSomething() throws Exception {
+        // Initialize the database
+        reviewRepository.saveAndFlush(review);
+
+        // Get all the reviewList where rating is less than DEFAULT_RATING
+        defaultReviewShouldNotBeFound("rating.lessThan=" + DEFAULT_RATING);
+
+        // Get all the reviewList where rating is less than UPDATED_RATING
+        defaultReviewShouldBeFound("rating.lessThan=" + UPDATED_RATING);
+    }
+
+    @Test
+    @Transactional
+    void getAllReviewsByRatingIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        reviewRepository.saveAndFlush(review);
+
+        // Get all the reviewList where rating is greater than DEFAULT_RATING
+        defaultReviewShouldNotBeFound("rating.greaterThan=" + DEFAULT_RATING);
+
+        // Get all the reviewList where rating is greater than SMALLER_RATING
+        defaultReviewShouldBeFound("rating.greaterThan=" + SMALLER_RATING);
+    }
+
+    /**
+     * Executes the search, and checks that the default entity is returned.
+     */
+    private void defaultReviewShouldBeFound(String filter) throws Exception {
+        restReviewMockMvc
+            .perform(get(ENTITY_API_URL + "?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(review.getId().intValue())))
+            .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE)))
+            .andExpect(jsonPath("$.[*].content").value(hasItem(DEFAULT_CONTENT)))
+            .andExpect(jsonPath("$.[*].rating").value(hasItem(DEFAULT_RATING)));
+
+        // Check, that the count call also returns 1
+        restReviewMockMvc
+            .perform(get(ENTITY_API_URL + "/count?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(content().string("1"));
+    }
+
+    /**
+     * Executes the search, and checks that the default entity is not returned.
+     */
+    private void defaultReviewShouldNotBeFound(String filter) throws Exception {
+        restReviewMockMvc
+            .perform(get(ENTITY_API_URL + "?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$").isEmpty());
+
+        // Check, that the count call also returns 0
+        restReviewMockMvc
+            .perform(get(ENTITY_API_URL + "/count?sort=id,desc&" + filter))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(content().string("0"));
     }
 
     @Test

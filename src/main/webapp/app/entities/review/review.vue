@@ -28,10 +28,22 @@
       <table class="table table-striped" aria-describedby="reviews">
         <thead>
           <tr>
-            <th scope="row"><span v-text="$t('global.field.id')">ID</span></th>
-            <th scope="row"><span v-text="$t('jdemoApp.review.title')">Title</span></th>
-            <th scope="row"><span v-text="$t('jdemoApp.review.content')">Content</span></th>
-            <th scope="row"><span v-text="$t('jdemoApp.review.rating')">Rating</span></th>
+            <th scope="row" v-on:click="changeOrder('id')">
+              <span v-text="$t('global.field.id')">ID</span>
+              <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'id'"></jhi-sort-indicator>
+            </th>
+            <th scope="row" v-on:click="changeOrder('title')">
+              <span v-text="$t('jdemoApp.review.title')">Title</span>
+              <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'title'"></jhi-sort-indicator>
+            </th>
+            <th scope="row" v-on:click="changeOrder('content')">
+              <span v-text="$t('jdemoApp.review.content')">Content</span>
+              <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'content'"></jhi-sort-indicator>
+            </th>
+            <th scope="row" v-on:click="changeOrder('rating')">
+              <span v-text="$t('jdemoApp.review.rating')">Rating</span>
+              <jhi-sort-indicator :current-order="propOrder" :reverse="reverse" :field-name="'rating'"></jhi-sort-indicator>
+            </th>
             <th scope="row"></th>
           </tr>
         </thead>
@@ -98,6 +110,14 @@
         </button>
       </div>
     </b-modal>
+    <div v-show="reviews && reviews.length > 0">
+      <div class="row justify-content-center">
+        <jhi-item-count :page="page" :total="queryCount" :itemsPerPage="itemsPerPage"></jhi-item-count>
+      </div>
+      <div class="row justify-content-center">
+        <b-pagination size="md" :total-rows="totalItems" v-model="page" :per-page="itemsPerPage" :change="loadPage(page)"></b-pagination>
+      </div>
+    </div>
   </div>
 </template>
 
