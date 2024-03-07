@@ -41,6 +41,9 @@
     "clientPackageManager": "npm",
     "clientThemeVariant": "",
     "languages": ["en", "in"],
-    "incrementalChangelog": true
+    "incrementalChangelog": true,
+    "otherModules": [],
+    "entities": ["Author", "Book"],
+    "lastLiquibaseTimestamp": 1709777118000
   }
 }
