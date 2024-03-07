@@ -41,6 +41,6 @@
     "clientPackageManager": "npm",
     "clientThemeVariant": "",
     "languages": ["en", "in"],
-    "otherModules": []
+    "incrementalChangelog": true
   }
 }
