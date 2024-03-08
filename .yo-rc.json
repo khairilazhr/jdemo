@@ -28,7 +28,7 @@
     "buildTool": "maven",
     "serverSideOptions": [],
     "websocket": false,
-    "searchEngine": false,
+    "searchEngine": "elasticsearch",
     "messageBroker": false,
     "enableSwaggerCodegen": false,
     "clientFramework": "vue",
@@ -43,7 +43,6 @@
     "languages": ["en", "in"],
     "incrementalChangelog": true,
     "otherModules": [],
-    "searchEngine": "elasticsearch",
     "entities": ["Author", "Book", "Review", "Order"],
     "lastLiquibaseTimestamp": 1709782478000
   }
